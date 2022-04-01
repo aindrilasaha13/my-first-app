@@ -21,8 +21,9 @@ def name():
     # file.write(img_response.content)
     # file.close()
     # img = "/static/downloaded.jpg"
+    
     img = requests.get("https://testing-first-flask-app.herokuapp.com//image")
-    return render_template("new_page.html",display_string=display_string,img=img)
+    return render_template("new_page.html",display_string=display_string,img=img.content)
 
 @app.get("/hello")
 def hello():
