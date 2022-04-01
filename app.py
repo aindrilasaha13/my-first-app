@@ -27,7 +27,7 @@ def add():
 def hello():
     return "Hello" 
 
-@app.get("/name")
+@app.post("/name")
 def image():
  
     x = [1,2,3,4,5]
