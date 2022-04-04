@@ -1,12 +1,16 @@
-from flask import Flask,render_template
+from flask import Flask,render_template,request
+
 import pandas as pd,numpy as np
 from sklearn.model_selection import train_test_split
+from datetime import datetime
+import matplotlib.pyplot as plt
+
 from sklearn.neural_network import MLPRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
-import matplotlib.pyplot as plt
+
 import io,base64
 
 app = Flask(__name__)
@@ -14,6 +18,60 @@ app = Flask(__name__)
 @app.get("/")
 def add():
     return render_template("home.html")
+
+@app.get("/get_statewise_input_data")
+def get_prediction_input_data():
+    return render_template("get_statewise_input.html")
+
+@app.get("/get_country_input_data")
+def get_prediction_input_data():
+    return render_template("get_country_input.html")
+
+@app.post("/display_state_data")
+def display_state_data():
+    
+    state=request.form.get("state")
+    days=int(request.form.get("days"))
+    
+    df = pd.read_csv(r"datasets\COVID-19 Cases statewise.csv",parse_dates=True)
+    df1 = df.copy()
+    df1.drop("S. No.",axis=1,inplace=True)
+    df1 = df1.drop(df1[df1.Region == "India"].index)
+    df1 = df1.drop(df1[df1.Region == "World"].index)
+    df1 = df1.drop(df1[df1.Region == "State assignment pending"].index)
+    df1.reset_index(inplace = True,drop=True)
+    df_new = df1[df1["Region"]==state]
+    df_new.set_index('Date',drop=True,inplace=True)
+    df_new.drop(["Region"],axis=1,inplace=True)
+    df_Res = df_new.tail(days)
+    
+    html_template = df_Res.to_html(classes="mystyle") 
+    return render_template("display_state_data.html",table=html_template,days=days,state=state)
+
+@app.post("/display_country_data")
+def display_country_data():
+    
+    date = str(request.form.get("date"))
+    
+    df = pd.read_csv(r"datasets/COVID-19 Cases statewise.csv",parse_dates=True)
+    df1 = df.copy()
+   
+    df1.drop("S. No.",axis=1,inplace=True)
+    df1 = df1.drop(df1[df1.Region == "India"].index)
+    df1 = df1.drop(df1[df1.Region == "World"].index)
+    df1 = df1.drop(df1[df1.Region == "State assignment pending"].index)
+    df1.reset_index(inplace = True,drop=True)
+    df1['Date']= pd.to_datetime(df1['Date']).dt.date
+
+    date = datetime.strptime(date,"%Y-%m-%d").date()
+
+    df_new = df1.loc[df1["Date"]==date]
+    df_new.reset_index(inplace=True,drop=True)
+    df_new.set_index("Region",inplace=True,drop=True)
+    df_new.drop("Date",axis=1,inplace=True)
+    
+    html_template = df_new.to_html(classes="mystyle")
+    return render_template("display_country_data.html",table=html_template,date=date)
 
 @app.get("/get_prediction_input_data")
 def get_prediction_input_data():
@@ -73,7 +131,7 @@ def mlp_predict():
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
     
-    return render_template('display.html',images={ 'image': plot_url })
+    return render_template('display_predicted_data.html',images={ 'image': plot_url })
 
 @app.get("/lin_predict")
 def lin_predict(): 
@@ -130,7 +188,7 @@ def lin_predict():
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
     
-    return render_template('display.html',images={ 'image': plot_url })
+    return render_template('display_predicted_data.html',images={ 'image': plot_url })
 
 @app.get("/poly_predict")
 def poly_predict(): 
@@ -207,7 +265,7 @@ def poly_predict():
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
     
-    return render_template('display.html',images={ 'image': plot_url })
+    return render_template('display_predicted_data.html',images={ 'image': plot_url })
 
 @app.get("/svr_predict")
 def svr_predict(): 
@@ -279,7 +337,7 @@ def svr_predict():
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
 
-    return render_template('display.html',images={ 'image': plot_url })
+    return render_template('display_predicted_data.html',images={ 'image': plot_url })
 
 @app.get("/rfr_predict")
 def rfr_predict(): 
@@ -336,7 +394,7 @@ def rfr_predict():
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
 
-    return render_template('display.html',images={ 'image': plot_url })
+    return render_template('display_predicted_data.html',images={ 'image': plot_url })
 
 if __name__ == "__main__":
     app.run(debug=True)
