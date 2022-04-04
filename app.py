@@ -21,7 +21,7 @@ def name():
     # file.close()
     # img = "/static/downloaded.jpg"
 
-    render_template('new_page.html',display_string=display_string, images={ 'image': img_response.content })
+    return render_template('new_page.html',display_string=display_string, images={ 'image': img_response.content })
 
 @app.get("/hello")
 def hello():
