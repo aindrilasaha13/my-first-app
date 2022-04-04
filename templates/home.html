@@ -1,15 +1,20 @@
+<!DOCTYPE html>
 <html>
-<head>
-    <title>home page</title>
-</head>
-<body>
-    <!--div>
-        <img src="static\\img.jpg" alt="img">
-    </div-->
-    <form action="/name" method="POST">
-        <label for="name">Enter your name</label>
-        <input type="text" id="name" name="name"><br><br>
-        <input type="submit" value="Submit" name="submit">
-      </form>
-</body>
+    <head>
+        <link rel="stylesheet" type="text/css" href="static\buttons_style.css"/>
+    </head>
+    <body>
+        <img src="/static/banner.jpg" width="100%" height="250vw" alt="banner">
+        <br>
+        <h1 style="text-align:center">COVID-19 CASES IN INDIA</h1>
+        <div >
+            <form>
+                <div class="center1">
+                    <button formaction="/get_prediction_input_data" class="button button1" target="_blank">Predict Covid-19 data</button>
+                </div>
+            </form>
+        </div>
+    </body>
 </html>
+
+
