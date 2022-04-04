@@ -1,8 +1,8 @@
 from flask import Flask,render_template,request,send_file
 import requests
 import matplotlib.pyplot as plt
-import base64
-import io
+import io,base64
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 app = Flask(__name__)
 
@@ -16,14 +16,13 @@ def name():
     name = request.form.get("name")
     display_string = text_response.text + " "+name
     
-    # img_response = requests.get("https://testing-first-flask-app.herokuapp.com//image")
-    # file = open("static\\downloaded.jpg", "wb")
-    # file.write(img_response.content)
-    # file.close()
-    # img = "/static/downloaded.jpg"
-    
-    img = requests.get("https://testing-first-flask-app.herokuapp.com//image")
-    return render_template("new_page.html",display_string=display_string,img=img.content)
+    img_response = requests.get("https://testing-first-flask-app.herokuapp.com//image")
+    file = open("static\\downloaded.jpg", "wb")
+    file.write(img_response.content)
+    file.close()
+    img = "/static/downloaded.jpg"
+
+    return render_template("new_page.html",display_string=display_string,img=img)
 
 @app.get("/hello")
 def hello():
@@ -43,9 +42,14 @@ def image():
     plt.xticks(fontsize = 10)
     plt.yticks(fontsize = 10)
 
-    img = "static\\plotted_squares.jpg"
-    plt.savefig(img)
-    return send_file(img,as_attachment=True,mimetype='image/jpg') 
+    img = io.BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    plot_url = base64.b64encode(img.getvalue()).decode()
+    return render_template('new_page.html', images={ 'image': plot_url })
+    # img = "static\\plotted_squares.jpg"
+    # plt.savefig(img)
+    # return send_file(img,as_attachment=True,mimetype='image/jpg') 
   
 if __name__ == "__main__":
     app.run(debug=True)
